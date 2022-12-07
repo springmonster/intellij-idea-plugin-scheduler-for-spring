@@ -9,18 +9,22 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @author KuangHaochuan
+ * @version 1.0
+ */
 public class SchedulerWindowFactory implements ToolWindowFactory {
 
-  /**
-   * Create the tool window content.
-   *
-   * @param project    current project
-   * @param toolWindow current tool window
-   */
-  public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-    SchedulerToolWindow schedulerToolWindow = new SchedulerToolWindow(toolWindow);
-    ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-    Content content = contentFactory.createContent(schedulerToolWindow.getContent(), "", false);
-    toolWindow.getContentManager().addContent(content);
-  }
+    /**
+     * Create the tool window content.
+     *
+     * @param project    current project
+     * @param toolWindow current tool window
+     */
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        SchedulerToolWindow schedulerToolWindow = new SchedulerToolWindow(project, toolWindow);
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        Content content = contentFactory.createContent(schedulerToolWindow.getContent(), "", false);
+        toolWindow.getContentManager().addContent(content);
+    }
 }
