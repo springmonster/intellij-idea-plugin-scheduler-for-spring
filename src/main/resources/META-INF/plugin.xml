@@ -33,7 +33,7 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Scheduler" secondary="true" icon="AllIcons.General.Modified" anchor="right"
-                    factoryClass="com.khch.scheduler.SchedulerWindowFactory"/>
+                    factoryClass="com.khch.scheduler.ui.SchedulerWindowFactory"/>
     </extensions>
 
 </idea-plugin>
