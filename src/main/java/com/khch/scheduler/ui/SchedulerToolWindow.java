@@ -7,15 +7,19 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.ui.TreeSpeedSearch;
 import com.khch.scheduler.SchedulerTopic;
 import com.khch.scheduler.model.ScheduledModel;
 import com.khch.scheduler.scanner.ScheduledAnnotationScanner;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,28 +32,63 @@ public class SchedulerToolWindow {
     private JButton refreshScanningBtn;
     private JPanel toolWindowContent;
     private JTree scheduledTree;
-    private JButton testRuleBtn;
-    private JTextArea ruleDisplayTxt;
+    private JScrollPane scheduledJScrollPane;
 
     private Project project;
 
     public SchedulerToolWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
-
-        refreshScanningBtn.addActionListener(e -> renderScheduledAnnotationTree());
-
         renderTreeWhenInit();
+        initRefreshButton();
+    }
+
+    private void initRefreshButton() {
+        refreshScanningBtn.addActionListener(e -> renderScheduledAnnotationTree());
     }
 
     private void renderTreeWhenInit() {
+        scheduledJScrollPane.setVisible(false);
+        refreshScanningBtn.setVisible(false);
+
+        this.scheduledTree.setCellRenderer(new TreeCellRenderer());
+        new TreeSpeedSearch(this.scheduledTree);
+
         DumbService.getInstance(this.project).smartInvokeLater(this::renderScheduledAnnotationTree);
 
         project.getMessageBus().connect().subscribe(SchedulerTopic.ACTION_SCAN_SERVICE, data -> {
             if (data instanceof Map) {
                 //noinspection unchecked
                 renderScheduledAnnotationTree((Map<String, List<ScheduledModel>>) data);
+                scheduledJScrollPane.setVisible(true);
+                refreshScanningBtn.setVisible(true);
             }
         });
+
+        this.scheduledTree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    final int doubleClick = 2;
+                    ScheduledModel node = getTreeNodeOfScheduledModel(scheduledTree);
+                    if (node != null && e.getClickCount() == doubleClick) {
+                        node.navigate(true);
+                    }
+                }
+            }
+        });
+    }
+
+    @Nullable
+    private ScheduledModel getTreeNodeOfScheduledModel(@NotNull JTree tree) {
+        DefaultMutableTreeNode sel = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        if (sel == null) {
+            return null;
+        }
+        Object object = sel.getUserObject();
+        if (!(object instanceof ScheduledModel)) {
+            return null;
+        }
+        return (ScheduledModel) object;
     }
 
     private void renderScheduledAnnotationTree(Map<String, List<ScheduledModel>> map) {
@@ -58,20 +97,22 @@ public class SchedulerToolWindow {
 
         map.forEach((moduleName, scheduledModels) -> {
             DefaultMutableTreeNode item = new DefaultMutableTreeNode(String.format(
-                    "[%d]%s",
+                    "[%d] %s",
                     scheduledModels.size(),
                     moduleName
             ));
-            scheduledModels.forEach(request -> {
-                item.add(new DefaultMutableTreeNode(request));
+            scheduledModels.forEach(model -> {
+                item.add(new DefaultMutableTreeNode(model));
                 controllerCount.incrementAndGet();
             });
             root.add(item);
         });
 
-        root.setUserObject(controllerCount.get());
+        root.setUserObject(String.format("[%d] %s", controllerCount.get(), "Total Count"));
+
         DefaultTreeModel model = (DefaultTreeModel) this.scheduledTree.getModel();
         model.setRoot(root);
+
         expandAll(this.scheduledTree, new TreePath(this.scheduledTree.getModel().getRoot()), true);
     }
 
@@ -102,6 +143,7 @@ public class SchedulerToolWindow {
         Map<String, List<ScheduledModel>> map = new HashMap<>();
 
         Module[] modules = ModuleManager.getInstance(this.project).getModules();
+
         for (Module module : modules) {
             List<ScheduledModel> scheduledModels = getAllScheduledAnnotationMethods(project, module);
             if (scheduledModels.isEmpty()) {

@@ -1,18 +1,16 @@
-/**
- * @author KuangHaochuan
- */
 package com.khch.scheduler.scanner;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.impl.java.stubs.index.JavaShortClassNameIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.khch.scheduler.annotation.SpringScheduledAnnotation;
 import com.khch.scheduler.model.ScheduledModel;
-import com.khch.scheduler.utils.ScannerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +51,7 @@ public class ScheduledAnnotationScanner {
 
     @NotNull
     private static List<PsiClass> getScheduledAnnotationPsiClassesOfJava(@NotNull Project project, @NotNull Module module) {
-        GlobalSearchScope moduleScope = ScannerUtil.getModuleScope(module);
+        GlobalSearchScope moduleScope = module.getModuleScope();
 
         List<PsiClass> psiClasses = new ArrayList<>();
 
@@ -94,29 +92,5 @@ public class ScheduledAnnotationScanner {
         methods.add(new ScheduledModel(psiMethod));
 
         return methods;
-    }
-
-    public static List<String> getAnnotationAttributeValues(PsiAnnotation annotation, String attr) {
-        PsiAnnotationMemberValue value = annotation.findDeclaredAttributeValue(attr);
-
-        List<String> values = new ArrayList<>();
-        //只有注解
-        //一个值 class com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
-        //多个值  class com.intellij.psi.impl.source.tree.java.PsiArrayInitializerMemberValueImpl
-        if (value instanceof PsiReferenceExpression) {
-            PsiReferenceExpression expression = (PsiReferenceExpression) value;
-            values.add(expression.getText());
-        } else if (value instanceof PsiLiteralExpression) {
-//            values.add(psiNameValuePair.getLiteralValue());
-            values.add(((PsiLiteralExpression) value).getValue().toString());
-        } else if (value instanceof PsiArrayInitializerMemberValue) {
-            PsiAnnotationMemberValue[] initializers = ((PsiArrayInitializerMemberValue) value).getInitializers();
-
-            for (PsiAnnotationMemberValue initializer : initializers) {
-                values.add(initializer.getText().replaceAll("\\\"", ""));
-            }
-        }
-
-        return values;
     }
 }

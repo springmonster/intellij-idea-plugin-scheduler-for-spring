@@ -21,4 +21,9 @@ public class ScheduledModel {
             psiMethod.navigate(requestFocus);
         }
     }
+
+    @Override
+    public String toString() {
+        return psiMethod.getName();
+    }
 }
