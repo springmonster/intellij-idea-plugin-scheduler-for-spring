@@ -108,7 +108,7 @@ public class SchedulerToolWindow {
             root.add(item);
         });
 
-        root.setUserObject(String.format("[%d] %s", controllerCount.get(), "Total Count"));
+        root.setUserObject(String.format("[%d] %s", controllerCount.get(), this.project.getName()));
 
         DefaultTreeModel model = (DefaultTreeModel) this.scheduledTree.getModel();
         model.setRoot(root);

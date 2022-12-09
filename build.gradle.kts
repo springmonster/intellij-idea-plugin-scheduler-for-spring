@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.khch"
-version = "0.0.1"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -28,7 +28,7 @@ tasks {
 
     patchPluginXml {
         version.set("${project.version}")
-        sinceBuild.set("221")
+        sinceBuild.set("193.7288.26")
         untilBuild.set("223.*")
     }
 }

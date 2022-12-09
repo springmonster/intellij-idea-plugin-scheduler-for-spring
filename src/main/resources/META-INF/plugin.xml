@@ -19,16 +19,14 @@
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description>
         <![CDATA[
-        Scheduler plugin for Spring
-        1. List all schedule tasks in the project.
-        2. Verify schedule tasks ruls.
+        A toolset that displays all usages based on the Spring @Scheduled annotation.
         ]]>
     </description>
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Scheduler" secondary="true" icon="/scheduler/schedule.png" anchor="right"
+        <toolWindow id="Scheduler" secondary="true" icon="/scheduler/schedule.svg" anchor="right"
                     factoryClass="com.khch.scheduler.ui.SchedulerWindowFactory"/>
     </extensions>
 

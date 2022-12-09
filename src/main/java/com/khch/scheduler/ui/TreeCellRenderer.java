@@ -1,7 +1,6 @@
 package com.khch.scheduler.ui;
 
 import com.intellij.ui.ColoredTreeCellRenderer;
-import com.intellij.ui.SimpleTextAttributes;
 import com.khch.scheduler.model.ScheduledModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,9 +25,9 @@ public class TreeCellRenderer extends ColoredTreeCellRenderer {
         if (obj instanceof ScheduledModel) {
             ScheduledModel node = (ScheduledModel) obj;
             setIcon(node);
-            append(node.toString(), SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES);
+            append(node.toString());
         } else if (obj instanceof String) {
-            append((String) obj, SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES);
+            append((String) obj);
         } else if (obj instanceof Integer) {
             append(String.format("Find %s @Scheduled", obj));
         }
