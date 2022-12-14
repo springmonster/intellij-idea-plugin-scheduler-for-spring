@@ -3,7 +3,7 @@ import org.jetbrains.changelog.date
 
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.10.0"
+    id("org.jetbrains.intellij") version "1.10.1"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "2.0.0"
 }
@@ -58,7 +58,7 @@ changelog {
         """.trimIndent()
     )
     itemPrefix.set("-")
-    keepUnreleasedSection.set(false)
+    keepUnreleasedSection.set(true)
     unreleasedTerm.set("[Unreleased]")
     groups.set(listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"))
     lineSeparator.set("\n")
