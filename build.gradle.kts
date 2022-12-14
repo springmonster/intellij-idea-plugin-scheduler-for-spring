@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.khch"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -14,10 +14,7 @@ repositories {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
     version.set("2022.1.4")
-    plugins.set(listOf("com.intellij.java"))
-//    type.set("IC") // Target IDE Platform
-
-//    plugins.set(listOf(/* Plugin Dependencies */))
+    plugins.set(listOf("com.intellij.java", "org.jetbrains.kotlin"))
 }
 
 java {

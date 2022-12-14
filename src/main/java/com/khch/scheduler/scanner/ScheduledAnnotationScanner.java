@@ -13,11 +13,9 @@ import com.khch.scheduler.annotation.SpringScheduledAnnotation;
 import com.khch.scheduler.model.ScheduledModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.idea.caches.KotlinShortNamesCache;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author KuangHaochuan
@@ -30,7 +28,7 @@ public class ScheduledAnnotationScanner {
         List<ScheduledModel> scheduledModels = new ArrayList<>();
 
         List<PsiClass> psiClasses = getScheduledAnnotationPsiClassesOfJava(project, module);
-//        controllers.addAll(getAllRetrofitKotlinClass(project, module));
+        psiClasses.addAll(getScheduledAnnotationPsiClassesOfKotlin(project, module));
 
         if (psiClasses.isEmpty()) {
             return scheduledModels;
@@ -65,6 +63,25 @@ public class ScheduledAnnotationScanner {
         });
 
         return psiClasses;
+    }
+
+    @NotNull
+    private static List<PsiClass> getScheduledAnnotationPsiClassesOfKotlin(@NotNull Project project, @NotNull Module module) {
+        GlobalSearchScope moduleScope = module.getModuleScope();
+
+        List<PsiClass> psiClassList = new ArrayList<>();
+
+        Collection<VirtualFile> virtualFiles = FilenameIndex.getAllFilesByExt(project, "kt", moduleScope);
+
+        virtualFiles.forEach(virtualFile -> {
+            PsiClass[] psiClasses = KotlinShortNamesCache.getInstance(project).getClassesByName(virtualFile.getNameWithoutExtension(), moduleScope);
+            List<PsiClass> classList = Arrays.asList(psiClasses);
+            if (!classList.isEmpty()) {
+                psiClassList.add(classList.get(0));
+            }
+        });
+
+        return psiClassList;
     }
 
     @NotNull
