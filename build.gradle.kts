@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.khch"
-version = "1.0.1"
+version = "1.0.3"
 
 repositories {
     mavenCentral()
@@ -31,7 +31,6 @@ tasks {
     patchPluginXml {
         version.set("${project.version}")
         sinceBuild.set("193.7288.26")
-        untilBuild.set("223.*")
 
         changeNotes.set(provider {
             changelog.renderItem(
@@ -46,7 +45,7 @@ tasks {
 }
 
 changelog {
-    version.set("1.0.1")
+    version.set("1.0.3")
     path.set(file("CHANGELOG.md").canonicalPath)
     header.set(provider { "[${version.get()}] - ${date()}" })
     headerParserRegex.set("""(\d+\.\d+)""".toRegex())
@@ -54,7 +53,7 @@ changelog {
         """
         Add new features:
         
-        - Support Kotlin based Spring Boot project which uses @Scheduled annotation
+        - Upgrade version
         """.trimIndent()
     )
     itemPrefix.set("-")
