@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.khch"
-version = "1.0.3"
+version = "1.0.4"
 
 repositories {
     mavenCentral()
@@ -31,6 +31,7 @@ tasks {
     patchPluginXml {
         version.set("${project.version}")
         sinceBuild.set("193.7288.26")
+        untilBuild.set("233.*")
 
         changeNotes.set(provider {
             changelog.renderItem(
@@ -45,7 +46,7 @@ tasks {
 }
 
 changelog {
-    version.set("1.0.3")
+    version.set("1.0.4")
     path.set(file("CHANGELOG.md").canonicalPath)
     header.set(provider { "[${version.get()}] - ${date()}" })
     headerParserRegex.set("""(\d+\.\d+)""".toRegex())
