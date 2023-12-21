@@ -20,7 +20,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -29,12 +32,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SchedulerToolWindow {
 
+    private final ScheduledAnnotationScanner scanner = new ScheduledAnnotationScanner();
     private JButton refreshScanningBtn;
     private JPanel toolWindowContent;
-    private JTree scheduledTree;
+    private JTree tree;
     private JScrollPane scheduledJScrollPane;
-
-    private Project project;
+    private final Project project;
 
     public SchedulerToolWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
@@ -42,40 +45,37 @@ public class SchedulerToolWindow {
         initRefreshButton();
     }
 
-    private void initRefreshButton() {
-        refreshScanningBtn.addActionListener(e -> renderScheduledAnnotationTree());
-    }
-
     private void renderTreeWhenInit() {
         scheduledJScrollPane.setVisible(false);
         refreshScanningBtn.setVisible(false);
 
-        this.scheduledTree.setCellRenderer(new TreeCellRenderer());
-        new TreeSpeedSearch(this.scheduledTree);
+        tree.setCellRenderer(new TreeCellRenderer());
+        new TreeSpeedSearch(tree);
 
-        DumbService.getInstance(this.project).smartInvokeLater(this::renderScheduledAnnotationTree);
+        DumbService.getInstance(project).smartInvokeLater(this::scanForSearchingAllAnnotations);
 
         project.getMessageBus().connect().subscribe(SchedulerTopic.ACTION_SCAN_SERVICE, data -> {
-            if (data instanceof Map) {
-                //noinspection unchecked
-                renderScheduledAnnotationTree((Map<String, List<ScheduledModel>>) data);
-                scheduledJScrollPane.setVisible(true);
-                refreshScanningBtn.setVisible(true);
-            }
+            scanForSearchingAllAnnotations(data);
+            scheduledJScrollPane.setVisible(true);
+            refreshScanningBtn.setVisible(true);
         });
 
-        this.scheduledTree.addMouseListener(new MouseAdapter() {
+        this.tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     final int doubleClick = 2;
-                    ScheduledModel node = getTreeNodeOfScheduledModel(scheduledTree);
+                    ScheduledModel node = getTreeNodeOfScheduledModel(tree);
                     if (node != null && e.getClickCount() == doubleClick) {
                         node.navigate(true);
                     }
                 }
             }
         });
+    }
+
+    private void initRefreshButton() {
+        refreshScanningBtn.addActionListener(e -> scanForSearchingAllAnnotations());
     }
 
     @Nullable
@@ -91,7 +91,7 @@ public class SchedulerToolWindow {
         return (ScheduledModel) object;
     }
 
-    private void renderScheduledAnnotationTree(Map<String, List<ScheduledModel>> map) {
+    private void scanForSearchingAllAnnotations(Map<String, List<ScheduledModel>> map) {
         AtomicInteger controllerCount = new AtomicInteger();
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(controllerCount.get());
 
@@ -110,10 +110,10 @@ public class SchedulerToolWindow {
 
         root.setUserObject(String.format("[%d] %s", controllerCount.get(), this.project.getName()));
 
-        DefaultTreeModel model = (DefaultTreeModel) this.scheduledTree.getModel();
+        DefaultTreeModel model = (DefaultTreeModel) this.tree.getModel();
         model.setRoot(root);
 
-        expandAll(this.scheduledTree, new TreePath(this.scheduledTree.getModel().getRoot()), true);
+        expandAll(this.tree, new TreePath(this.tree.getModel().getRoot()), true);
     }
 
     private void expandAll(JTree tree, @NotNull TreePath parent, boolean expand) {
@@ -133,7 +133,7 @@ public class SchedulerToolWindow {
         }
     }
 
-    private void renderScheduledAnnotationTree() {
+    private void scanForSearchingAllAnnotations() {
         SchedulerTopic schedulerTopic = project.getMessageBus().syncPublisher(SchedulerTopic.ACTION_SCAN_SERVICE);
         DumbService.getInstance(this.project).runWhenSmart(() -> schedulerTopic.afterAction(getAllScheduledAnnotationMethods()));
     }
@@ -142,26 +142,16 @@ public class SchedulerToolWindow {
     public Map<String, List<ScheduledModel>> getAllScheduledAnnotationMethods() {
         Map<String, List<ScheduledModel>> map = new HashMap<>();
 
-        Module[] modules = ModuleManager.getInstance(this.project).getModules();
+        Module[] modules = ModuleManager.getInstance(project).getModules();
 
         for (Module module : modules) {
-            List<ScheduledModel> scheduledModels = getAllScheduledAnnotationMethods(project, module);
+            List<ScheduledModel> scheduledModels = scanner.getScheduledAnnotationByModule(project, module);
             if (scheduledModels.isEmpty()) {
                 continue;
             }
             map.put(module.getName(), scheduledModels);
         }
         return map;
-    }
-
-    public List<ScheduledModel> getAllScheduledAnnotationMethods(@NotNull Project project, @NotNull Module module) {
-        ScheduledAnnotationScanner scanner = new ScheduledAnnotationScanner();
-        List<ScheduledModel> scheduledModel = scanner.getScheduledAnnotationByModule(project, module);
-        if (!scheduledModel.isEmpty()) {
-            return scheduledModel;
-        }
-
-        return Collections.emptyList();
     }
 
     public JPanel getContent() {

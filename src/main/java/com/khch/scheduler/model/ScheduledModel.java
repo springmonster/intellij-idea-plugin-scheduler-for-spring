@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
  * @version 1.0
  */
 public class ScheduledModel {
-    private PsiMethod psiMethod;
+    private final PsiMethod psiMethod;
 
 
     public ScheduledModel(@Nullable PsiMethod psiMethod) {
@@ -24,6 +24,9 @@ public class ScheduledModel {
 
     @Override
     public String toString() {
-        return psiMethod.getName();
+        if (psiMethod != null)
+            return psiMethod.getName();
+        else
+            return "";
     }
 }

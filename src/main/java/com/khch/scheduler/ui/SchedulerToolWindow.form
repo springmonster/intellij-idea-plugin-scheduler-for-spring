@@ -15,7 +15,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="c170a" class="javax.swing.JTree" binding="scheduledTree">
+          <component id="c170a" class="javax.swing.JTree" binding="tree">
             <constraints/>
             <properties>
               <autoscrolls value="true"/>
