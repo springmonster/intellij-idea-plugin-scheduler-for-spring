@@ -23,7 +23,7 @@ public class SchedulerWindowFactory implements ToolWindowFactory {
      */
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         SchedulerToolWindow schedulerToolWindow = new SchedulerToolWindow(project, toolWindow);
-        ContentFactory contentFactory = ContentFactory.getInstance();
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(schedulerToolWindow.getContent(), "", false);
         toolWindow.getContentManager().addContent(content);
     }
