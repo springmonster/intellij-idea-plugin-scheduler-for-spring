@@ -30,7 +30,7 @@ tasks {
 
     patchPluginXml {
         version.set("${project.version}")
-        sinceBuild.set("193.7288.26")
+        sinceBuild.set("222.4554.10")
         untilBuild.set("233.*")
 
         changeNotes.set(provider {
