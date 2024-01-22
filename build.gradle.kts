@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.khch"
-version = "1.0.5"
+version = "1.0.6"
 
 repositories {
     mavenCentral()
@@ -20,6 +20,7 @@ repositories {
 intellij {
     version.set("2022.2.5")
     plugins.set(listOf("com.intellij.java", "org.jetbrains.kotlin"))
+    updateSinceUntilBuild.set(false)
 }
 
 java {
@@ -31,7 +32,6 @@ tasks {
     patchPluginXml {
         version.set("${project.version}")
         sinceBuild.set("222.4554.10")
-        untilBuild.set("233.*")
 
         changeNotes.set(provider {
             changelog.renderItem(
